@@ -11,13 +11,13 @@ private:
 	float norm_factor;
 
 public:
-	state(unsigned int get_qubits);
-	state(std::complex <float> alpha, std::complex <float> beta);
+	explicit state(unsigned int size);
 	unsigned int size() const;
 
 	std::vector <std::complex <float>> getState() const;
 
 	bool measure(int id);
 
+	void operator*=(const transform &modify);
 	friend state operator*(const transform &modify, const state &ini);
 };
