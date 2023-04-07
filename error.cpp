@@ -6,27 +6,27 @@
 #include "all.h"
 
 int main () {
-	circuit ini_gates(3);
+	circuit <3> ini_gates;
 	ini_gates.RX(0, 0 * M_PI / 8);
-	circuit fin_gates(3);
+	circuit <3> fin_gates;
 
-	circuit encode(3);
+	circuit <3> encode;
 	encode.CX(0, 1);
 	encode.CX(0, 2);
-	circuit X0(3);
+	circuit <3> X0;
 	X0.X(0);
-	circuit X1(3);
+	circuit <3> X1;
 	X1.X(1);
-	circuit X2(3);
+	circuit <3> X2;
 	X2.X(2);
-	circuit decode(3);
+	circuit <3> decode;
 	decode.CX(0, 1);
 	decode.CX(0, 2);
 	decode.CCX({1, 2}, 0);
 
 	std::vector <int> cnt(2);
 	for(int ind = 0; ind < 100000; ind++) {
-		state now(3);
+		state <3> now;
 		ini_gates.Apply(now);
 
 		encode.Apply(now);

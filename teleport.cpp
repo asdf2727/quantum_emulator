@@ -5,27 +5,27 @@
 #include "all.h"
 
 int main () {
-	circuit ini_gates(3);
-	ini_gates.X(0);
-	ini_gates.H(0);
-	circuit fin_gates(3);
+	circuit <3> ini_gates;
+	//ini_gates.RX(0, 0 * M_PI / 8);
+	//ini_gates.H(0);
+	circuit <3> fin_gates;
 	fin_gates.H(2);
 
-	circuit teleport(3);
+	circuit <3> teleport;
 	teleport.H(1);
 	teleport.CX(1, 2);
 	teleport.CX(0, 1);
 	teleport.H(0);
 
-	circuit X(3);
+	circuit <3> X;
 	X.X(2);
-	circuit Z(3);
+	circuit <3> Z;
 	Z.Z(2);
 
 	std::vector <int> cnt(2);
 	bool doX, doZ;
 	for(int ind = 0; ind < 100000; ind++) {
-		state now(3);
+		state <3> now;
 		ini_gates.Apply(now);
 
 		teleport.Apply(now);

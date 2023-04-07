@@ -11,17 +11,16 @@ TODO:
 // Gate ids:
 #define gate0 (-1)
 #define gateI 0
-#define gateX 1
-#define gateY 2
-#define gateZ 3
-#define gateH 4
-#define gateRX 5
-#define gateRY 6
-#define gateRZ 7
-#define gateCX 8
-#define gateCY 9
-#define gateCZ 10
+#define gateH 1
+#define gateRX 2
+#define gateRY 3
+#define gateRZ 4
+#define gateCRX 5
+#define gateCRY 6
+#define gateCRZ 7
 
-#include "state.h"
+#define DEBUG
+
 #include "transform.h"
+#include "state.h"
 #include "circuit.h"
