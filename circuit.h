@@ -35,5 +35,5 @@ public:
 	void CCY(const std::vector <unsigned int> &posC, unsigned int posY);
 	void CCZ(const std::vector <unsigned int> &posC, unsigned int posZ);
 
-	void Simulate(state &init);
+	void Apply(state &init);
 };

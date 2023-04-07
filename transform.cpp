@@ -64,7 +64,7 @@ transform::transform (char gate, float phase) : matrix(2) {
 		matrix[0][0] = std::cos(phase) - 1if * std::sin(phase);
 		matrix[0][1] = 0;
 		matrix[1][0] = 0;
-		matrix[1][1] = std::cos(phase) - 1if * std::sin(phase);
+		matrix[1][1] = std::cos(phase) + 1if * std::sin(phase);
 		break;
 	default:
 		throw std::runtime_error("Gate not recognised!\n");
@@ -95,32 +95,35 @@ void transform::setControlGates (char gate, unsigned int ctl_mask, unsigned int 
 	if (ctl_mask & mod_mask) {
 		throw std::runtime_error("A qubit cannot be both a control and a target one!\n");
 	}
+	transform *base;
 	switch (gate) {
 	case gateCX:
-		for(int mask = 0; mask < (1 << no_qubits); mask++) {
-			matrix[mask].resize(1 << no_qubits, 0);
-			matrix[mask][mask ^ ((mask & ctl_mask) == ctl_mask ? mod_mask : 0)] = 1;
-		}
+		base = new transform(gateX);
 		break;
 	case gateCY:
-		for(int mask = 0; mask < (1 << no_qubits); mask++) {
-			matrix[mask].resize(1 << no_qubits, 0);
-			if ((mask & ctl_mask) == ctl_mask) {
-				matrix[mask][mask ^ mod_mask] = (mask & mod_mask ? 1i : -1i);
-			}
-			else {
-				matrix[mask][mask] = 1;
-			}
-		}
+		base = new transform(gateY);
 		break;
 	case gateCZ:
-		for(int mask = 0; mask < (1 << no_qubits); mask++) {
-			matrix[mask].resize(1 << no_qubits, 0);
-			matrix[mask][mask] = ((mask & tot_mask) == tot_mask ? -1 : 1);
-		}
+		base = new transform(gateZ);
 		break;
 	default:
 		throw std::runtime_error("Gate not recognised!\n");
+	}
+	for(int mask = 0; mask < (1 << no_qubits); mask++) {
+		matrix[mask].resize(1 << no_qubits, 0);
+		if ((mask & ctl_mask) == ctl_mask) {
+			if (mask & mod_mask) {
+				matrix[mask][mask] = base->matrix[1][1];
+				matrix[mask][mask ^ mod_mask] = base->matrix[1][0];
+			}
+			else {
+				matrix[mask][mask ^ mod_mask] = base->matrix[0][1];
+				matrix[mask][mask] = base->matrix[0][0];
+			}
+		}
+		else {
+			matrix[mask][mask] = 1;
+		}
 	}
 }
 transform::transform (char gate, unsigned int size, unsigned int target, unsigned int ctl) : matrix(1 << size) {

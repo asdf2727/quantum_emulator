@@ -6,9 +6,10 @@
 
 int main () {
 	circuit ini_gates(3);
-	ini_gates.RX(0, 3 * M_PI / 8);
+	ini_gates.X(0);
+	ini_gates.H(0);
 	circuit fin_gates(3);
-	fin_gates.RX(2, -3 * M_PI / 8);
+	fin_gates.H(2);
 
 	circuit teleport(3);
 	teleport.H(1);
@@ -25,17 +26,17 @@ int main () {
 	bool doX, doZ;
 	for(int ind = 0; ind < 100000; ind++) {
 		state now(3);
-		ini_gates.Simulate(now);
+		ini_gates.Apply(now);
 
-		teleport.Simulate(now);
+		teleport.Apply(now);
 		if (now.measure(0)) {
-			Z.Simulate(now);
+			Z.Apply(now);
 		}
 		if (now.measure(1)) {
-			X.Simulate(now);
+			X.Apply(now);
 		}
 
-		fin_gates.Simulate(now);
+		fin_gates.Apply(now);
 		cnt[now.measure(2)]++;
 	}
 	for (int val : cnt) {

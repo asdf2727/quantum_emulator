@@ -232,7 +232,7 @@ void circuit::Calculate () {
 	up_to_date = true;
 }
 
-void circuit::Simulate(state &init) {
+void circuit::Apply(state &init) {
 	if (!up_to_date) {
 		Calculate();
 	}

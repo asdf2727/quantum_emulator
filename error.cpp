@@ -27,21 +27,21 @@ int main () {
 	std::vector <int> cnt(2);
 	for(int ind = 0; ind < 100000; ind++) {
 		state now(3);
-		ini_gates.Simulate(now);
+		ini_gates.Apply(now);
 
-		encode.Simulate(now);
+		encode.Apply(now);
 		if (rand() % 10 == 0) {
-			X0.Simulate(now);
+			X0.Apply(now);
 		}
 		if (rand() % 10 == 0) {
-			X1.Simulate(now);
+			X1.Apply(now);
 		}
 		if (rand() % 10 == 0) {
-			X2.Simulate(now);
+			X2.Apply(now);
 		}
-		decode.Simulate(now);
+		decode.Apply(now);
 
-		fin_gates.Simulate(now);
+		fin_gates.Apply(now);
 		cnt[now.measure(0)]++;
 	}
 	for (int val : cnt) {
