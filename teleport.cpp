@@ -6,8 +6,7 @@
 
 int main () {
 	circuit <3> ini_gates;
-	//ini_gates.RX(0, 0 * M_PI / 8);
-	//ini_gates.H(0);
+	ini_gates.RY(0, M_PI / 2);
 	circuit <3> fin_gates;
 	fin_gates.H(2);
 

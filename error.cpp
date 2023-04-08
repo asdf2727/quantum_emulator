@@ -36,9 +36,6 @@ int main () {
 		if (rand() % 10 == 0) {
 			X1.Apply(now);
 		}
-		if (rand() % 10 == 0) {
-			X2.Apply(now);
-		}
 		decode.Apply(now);
 
 		fin_gates.Apply(now);

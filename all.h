@@ -2,10 +2,9 @@
 
 /*
 TODO:
+	creat reprezentare grafica
 	comentarii pentru ceilalti
 	verificat tot
-	creat reprezentare grafica
-	creat clasa de timeline eventual
 */
 
 // Gate ids:
@@ -19,7 +18,7 @@ TODO:
 #define gateCRY 6
 #define gateCRZ 7
 
-#define DEBUG
+//#define DEBUG
 
 #include "transform.h"
 #include "state.h"

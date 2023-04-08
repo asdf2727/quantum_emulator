@@ -1,6 +1,5 @@
 #pragma once
 
-#include <iostream>
 #include <complex>
 #include <vector>
 #include <cmath>
@@ -34,6 +33,7 @@ public:
 	friend transform operator|(const transform &first, const transform &second);
 
 #ifdef DEBUG
+#include <iostream>
 	void Show() {
 		for(int mask1 = 0; mask1 < matrix.size(); mask1++) {
 			for(int mask2 = 0; mask2 < matrix.size(); mask2++) {
@@ -90,10 +90,10 @@ transform::transform (char gate, double phase) : matrix(2) {
 	phase /= 2;
 	switch (gate) {
 	case gateRX:
-		matrix[0][0] = 1i * std::cos(phase);
-		matrix[0][1] = std::sin(phase);
-		matrix[1][0] = std::sin(phase);
-		matrix[1][1] = 1i * std::cos(phase);
+		matrix[0][0] = std::cos(phase);
+		matrix[0][1] = -1i * std::sin(phase);
+		matrix[1][0] = -1i * std::sin(phase);
+		matrix[1][1] = std::cos(phase);
 		break;
 	case gateRY:
 		matrix[0][0] = std::cos(phase);
@@ -102,14 +102,19 @@ transform::transform (char gate, double phase) : matrix(2) {
 		matrix[1][1] = std::cos(phase);
 		break;
 	case gateRZ:
-		matrix[0][0] = std::cos(phase) + std::sin(phase);
+		matrix[0][0] = std::cos(phase) - 1i * std::sin(phase);
 		matrix[0][1] = 0;
 		matrix[1][0] = 0;
-		matrix[1][1] = std::cos(phase) - std::sin(phase);
+		matrix[1][1] = std::cos(phase) + 1i * std::sin(phase);
 		break;
 	default:
 		throw std::runtime_error("Gate not recognised!\n");
 	}
+	std::complex <double> phase_shift = std::cos(phase) + 1i * std::sin(phase);
+	matrix[0][0] *= phase_shift;
+	matrix[0][1] *= phase_shift;
+	matrix[1][0] *= phase_shift;
+	matrix[1][1] *= phase_shift;
 }
 
 transform::transform(char gate, unsigned int size) : matrix(1 << size) {

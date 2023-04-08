@@ -267,15 +267,14 @@ void circuit <no_qubits>::Calculate () {
 			}
 			else {
 				unsigned int len = 0;
-				unsigned int target;
+				unsigned int type, target;
 				std::vector <unsigned int> ctls;
-				char type;
 				while (ind < layer.size()) {
 					if (layer[ind] == 'c') {
 						ctls.push_back(len);
 					}
 					else if (layer[ind] != '0') {
-						type = layer[ind];
+						type = ind;
 						target = len;
 					}
 					len++;
@@ -284,15 +283,15 @@ void circuit <no_qubits>::Calculate () {
 					}
 					ind++;
 				}
-				switch (type) {
+				switch (layer[type]) {
 				case 'x':
-					dyn = new transform(gateCRX, len, target, ctls, data[depth][ind]);
+					dyn = new transform(gateCRX, len, target, ctls, data[depth][type]);
 					break;
 				case 'y':
-					dyn = new transform(gateCRY, len, target, ctls, data[depth][ind]);
+					dyn = new transform(gateCRY, len, target, ctls, data[depth][type]);
 					break;
 				case 'z':
-					dyn = new transform(gateCRZ, len, target, ctls, data[depth][ind]);
+					dyn = new transform(gateCRZ, len, target, ctls, data[depth][type]);
 					break;
 				default:
 					throw std::runtime_error("Invalid gate found!\n");
