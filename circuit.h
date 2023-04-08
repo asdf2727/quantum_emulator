@@ -6,6 +6,12 @@
 
 #include "state.h"
 
+template <unsigned int no_qubits>
+class circuit;
+
+template <unsigned int no_qubits>
+std::ostream &operator<<(std::ostream &out, circuit <no_qubits> &to_draw);
+
 /*
  * Circuit class. Manages gate placement, drawing and simplifying to a 'circuit matrix'. This optimization allows the
  * circuit to be calculated a single time and then reused for different states.
@@ -68,7 +74,7 @@ public:
 	 * Draws a schematic of the current circuit to the given output buffer. Uses only extended ascii characters.
 	 */
 	void Draw(std::ostream &out);
-	std::ostream &operator<<(std::ostream &out);
+	friend std::ostream &operator<< <>(std::ostream &out, circuit <no_qubits> &to_draw);
 };
 
 template <unsigned int no_qubits>
@@ -448,8 +454,8 @@ void circuit <no_qubits>::Draw(std::ostream &out) {
 	}
 }
 template <unsigned int no_qubits>
-std::ostream &circuit <no_qubits>::operator<<(std::ostream &out) {
-	Draw(out);
+std::ostream &operator<<(std::ostream &out, circuit <no_qubits> &to_draw) {
+	to_draw.Draw(out);
 	return out;
 }
 
