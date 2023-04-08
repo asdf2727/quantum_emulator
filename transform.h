@@ -4,11 +4,25 @@
 #include <vector>
 #include <cmath>
 
-#include "all.h"
+//#define DEBUG
+
+#define gate0 (-1)
+#define gateI 0
+#define gateH 1
+#define gateRX 2
+#define gateRY 3
+#define gateRZ 4
+#define gateCRX 5
+#define gateCRY 6
+#define gateCRZ 7
 
 template <unsigned int no_qubits>
 class state;
 
+/*
+ * Intermediary class to enable work with transformation matrices. While use of this class is technically possible it is
+ * highly discouraged. Any user can instead find the class circuit easier to use and with more functionality.
+ */
 class transform {
 private:
 	unsigned int no_qubits;
@@ -17,20 +31,33 @@ private:
 
 	void setControlGates(char id, unsigned int ctl_mask, unsigned int mod_mask, double phase);
 public:
-	explicit transform(char gate);
-	explicit transform(char gate, double phase);
-	explicit transform(char gate, unsigned int size);
-	explicit transform(char gate, unsigned int size, unsigned int target, unsigned int ctl, double phase);
-	explicit transform(char gate, unsigned int size, unsigned int target, std::vector <unsigned int> ctls, double phase);
+	/*
+	 * Various constructors. Initialises the matrix with various states
+	 */
+	explicit transform(char gate); // I gate and 0 gate (empty matrix)
+	explicit transform(char gate, double phase); // RX, RY, RZ gates
+	explicit transform(char gate, unsigned int size); // I gate and 0 gate (variable size)
+	explicit transform(char gate, unsigned int size, unsigned int target, unsigned int ctl, double phase); // CX, CY, CZ gates
+	explicit transform(char gate, unsigned int size, unsigned int target, std::vector <unsigned int> ctls, double phase); // CCX, CCY, CCZ gates
 
+	/*
+	 * Here the '*' operator multiplies a state vector by a transformation matrix
+	 */
 	template <unsigned int size>
 	friend state <size>operator*(const transform &modify, const state <size>&ini);
 
+	/*
+	 * Here the '*' operator multiplies 2 transformation matrices to form a single one representing both
+	 */
 	void operator*=(const transform &next);
 	friend transform operator*(const transform &first, const transform &second);
 
+	/*
+	 * Here the '|' operator executes the Kronecker product for 2 transformation matrices to construct more complicated
+	 * circuits out of many gates for different qubits. rhs has qubits 0...i and lhs has qubits (i+1)...n
+	 */
 	void operator|=(const transform &next);
-	friend transform operator|(const transform &first, const transform &second);
+	friend transform operator|(const transform &rhs, const transform &lhs);
 
 #ifdef DEBUG
 #include <iostream>

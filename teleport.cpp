@@ -2,19 +2,20 @@
 #include <cmath>
 #include <vector>
 
-#include "all.h"
+#include "circuit.h"
 
 int main () {
-	circuit <3> ini_gates;
-	ini_gates.RY(0, M_PI / 2);
-	circuit <3> fin_gates;
-	fin_gates.H(2);
 
 	circuit <3> teleport;
+	teleport.RY(0, M_PI / 4);
+
 	teleport.H(1);
 	teleport.CX(1, 2);
+	teleport.Bar();
 	teleport.CX(0, 1);
 	teleport.H(0);
+
+	teleport.Draw(std::cout);
 
 	circuit <3> X;
 	X.X(2);
@@ -25,17 +26,14 @@ int main () {
 	bool doX, doZ;
 	for(int ind = 0; ind < 100000; ind++) {
 		state <3> now;
-		ini_gates.Apply(now);
-
 		teleport.Apply(now);
-		if (now.measure(0)) {
+		std::vector <bool> send = now.measure({0, 1});
+		if (send[0]) {
 			Z.Apply(now);
 		}
-		if (now.measure(1)) {
+		if (send[1]) {
 			X.Apply(now);
 		}
-
-		fin_gates.Apply(now);
 		cnt[now.measure(2)]++;
 	}
 	for (int val : cnt) {

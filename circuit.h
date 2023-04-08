@@ -1,7 +1,16 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
+#include <string>
 
+#include "state.h"
+
+/*
+ * Circuit class. Manages gate placement, drawing and simplifying to a 'circuit matrix'. This optimization allows the
+ * circuit to be calculated a single time and then reused for different states.
+ * This class is unable to handle measurements. Please call them from the state class instead.
+ */
 template <unsigned int no_qubits>
 class circuit {
 private:
@@ -22,6 +31,10 @@ private:
 public:
 	circuit();
 
+	/*
+	 * Various gates. Each one is applied to the end of the circuit and cannot be removed.
+	 * Applying a gate does NOT invalidate the 'Apply' method.
+	 */
 	void Bar();
 
 	void H(unsigned int pos);
@@ -46,7 +59,16 @@ public:
 	void CCRY(const std::vector <unsigned int> &posC, unsigned int posY, double phase);
 	void CCRZ(const std::vector <unsigned int> &posC, unsigned int posZ, double phase);
 
+	/*
+	 * Runs a given state through the circuit. If necessary recalculates the circuit.
+	 */
 	void Apply(state <no_qubits>&init);
+
+	/*
+	 * Draws a schematic of the current circuit to the given output buffer. Uses only extended ascii characters.
+	 */
+	void Draw(std::ostream &out);
+	std::ostream &operator<<(std::ostream &out);
 };
 
 template <unsigned int no_qubits>
@@ -126,6 +148,7 @@ template <unsigned int no_qubits>
 void circuit <no_qubits>::H (unsigned int pos) {
 	int depth = getSpot(pos);
 	gates[depth][pos] = 'H';
+	data[depth][pos] = M_PI;
 }
 
 template <unsigned int no_qubits>
@@ -317,3 +340,139 @@ void circuit <no_qubits>::Apply(state <no_qubits> &init) {
 	}
 	init = *total * init;
 }
+
+#define DBar (char)186
+#define VBar (char)179
+#define HBar (char)196
+#define upT (char)193
+#define leftT (char)180
+#define downT (char)194
+#define rightT (char)195
+#define LUcorn (char)218
+#define LDcorn (char)192
+#define RUcorn (char)191
+#define RDcorn (char)217
+#define cross (char)197
+#define fill (char)219
+
+template <unsigned int no_qubits>
+void circuit <no_qubits>::Draw(std::ostream &out) {
+	if (!gates.empty()) {
+		static std::string HBar7(7, HBar);
+		static std::string upEdge = {LUcorn, HBar, HBar, HBar, HBar, HBar, RUcorn};
+		static std::string downEdge = {LDcorn, HBar, HBar, HBar, HBar, HBar, RDcorn};
+		static std::string upEdgeNotch = {LUcorn, HBar, HBar, upT, HBar, HBar, RUcorn};
+		static std::string downEdgeNotch = {LDcorn, HBar, HBar, downT, HBar, HBar, RDcorn};
+		static std::string sideEdges = {leftT, ' ', ' ', ' ', ' ', ' ', rightT};
+		std::vector <std::string> result(no_qubits * 3);
+		for(int ind = 0; ind < no_qubits; ind++) {
+			result[3 * ind] = ' ';
+			result[3 * ind + 1] += HBar;
+			result[3 * ind + 2] += ' ';
+		}
+		for(int depth = 0; depth < gates.size(); depth++) {
+			if (gates[depth][0] == '|') {
+				for(int ind = 0; ind < no_qubits; ind++) {
+					result[3 * ind] += { DBar, ' ', };
+					result[3 * ind + 1] += { DBar, HBar, };
+					result[3 * ind + 2] += { DBar, ' ', };
+				}
+			}
+			else {
+				int ctrl_last = false, ctrl_now, ctrl_stop;
+				for(int ind = 0; ind < no_qubits; ind++) {
+					ctrl_stop = gate_stops[depth] & (1 << ind);
+					if (gates[depth][ind] == '-') {
+						result[3 * ind] +=     "       ";
+						result[3 * ind + 1] += HBar7;
+						result[3 * ind + 2] += "       ";
+						ctrl_last = false;
+					}
+					else if (gates[depth][ind] == 'X' || gates[depth][ind] == 'Y' || gates[depth][ind] == 'Z' || gates[depth][ind] == 'H') {
+						result[3 * ind] += upEdge;
+						result[3 * ind + 1] += sideEdges;
+						result[3 * ind + 2] += downEdge;
+						if(data[depth][ind] == M_PI) {
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = gates[depth][ind];
+						}
+						else {
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = 'R';
+							result[3 * ind + 1][result[3 * ind + 1].size() - 3] = gates[depth][ind];
+						}
+						ctrl_last = false;
+					}
+					else if (gates[depth][ind] == '0' || gates[depth][ind] == 'c') {
+						result[3 * ind] +=     "       ";
+						result[3 * ind + 1] += HBar7;
+						result[3 * ind + 2] += "       ";
+						if (ctrl_last) {
+							result[3 * ind][result[3 * ind].size() - 4] = VBar;
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = downT;
+						}
+						if (!ctrl_stop) {
+							result[3 * ind + 2][result[3 * ind + 2].size() - 4] = VBar;
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = ctrl_last ? cross : upT;
+						}
+						if (gates[depth][ind] == 'c') {
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = fill;
+						}
+						ctrl_last = !ctrl_stop;
+					}
+					else if (gates[depth][ind] == 'x' || gates[depth][ind] == 'y' || gates[depth][ind] == 'z') {
+						result[3 * ind] +=     ctrl_last ? upEdgeNotch : upEdge;
+						result[3 * ind + 1] += sideEdges;
+						result[3 * ind + 2] += ctrl_stop ? downEdge : downEdgeNotch;
+						result[3 * ind + 1][result[3 * ind + 1].size() - 5] = 'C';
+						if(data[depth][ind] == M_PI) {
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = gates[depth][ind] - 32;
+						}
+						else {
+							result[3 * ind + 1][result[3 * ind + 1].size() - 4] = 'R';
+							result[3 * ind + 1][result[3 * ind + 1].size() - 3] = gates[depth][ind] - 32;
+						}
+						ctrl_last = !ctrl_stop;
+					}
+					else {
+						throw std::runtime_error("Invalid gate found!\n");
+					}
+					result[3 * ind] +=     ' ';
+					result[3 * ind + 1] += HBar;
+					result[3 * ind + 2] += ' ';
+				}
+			}
+		}
+		for(std::string &line : result) {
+			out << line << '\n';
+		}
+		out << std::endl;
+	}
+}
+template <unsigned int no_qubits>
+std::ostream &circuit <no_qubits>::operator<<(std::ostream &out) {
+	Draw(out);
+	return out;
+}
+
+#undef DBar
+#undef VBar
+#undef HBar
+#undef upT
+#undef leftT
+#undef downT
+#undef rightT
+#undef LUcorn
+#undef LDcorn
+#undef RUcorn
+#undef RDcorn
+#undef cross
+
+#undef fill
+#undef gate0
+#undef gateI
+#undef gateH
+#undef gateRX
+#undef gateRY
+#undef gateRZ
+#undef gateCRX
+#undef gateCRY
+#undef gateCRZ

@@ -4,5 +4,5 @@ project(quantum_error_correction)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(quantum_emulator teleport.cpp state.h transform.h all.h circuit.h)
-add_executable(quantum_error_correction error.cpp state.h transform.h all.h circuit.h)
+add_executable(quantum_emulator teleport.cpp state.h transform.h circuit.h)
+add_executable(quantum_error_correction error.cpp state.h transform.h circuit.h)
