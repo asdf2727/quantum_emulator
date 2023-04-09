@@ -44,4 +44,4 @@ Toffoli gate please contact me (information below)!
 
 Regarding any other question or discussion please open an issue or if
 you have my mail contact me directly. Thanks for your interest and I'm
-interested to see what you create with this tool!
+curious to see what you create with this tool!
