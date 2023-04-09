@@ -10,7 +10,7 @@ All the code is written by me, using only standard libraries. I have also
 included two examples, one being quantum teleportation and the second 
 being quantum error correction.
 
-I also want to share some of my implementation and architectural decisions.
+I also want to share some of my implementation decisions.
 First of all, the most notable difference between qiskit and my 
 implementation is the lack of a measuring gate in the circuit library.
 I did this for mainly 2 reasons:
@@ -34,7 +34,7 @@ that I implemented as a small optimization to avoid normalising all the time,
 and another one might be the global phase shift I execute on RX, RY, RZ.
 Technically the global phase is irrelevant when describing a state as a vector,
 but I also use those gates as a basis for CRX, CRY, CRZ, and those gates
-require 0 global phase or else problem arise because of the method I used to
+require 0 global phase or else problems arise because of the method I used to
 make them.
 
 Also, relating the controlled gates, their implementation is pretty much
