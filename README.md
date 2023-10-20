@@ -1,9 +1,12 @@
+This was my graduation project for the qxq quantum computing course.
+You can find the message I left explaining this project below:
+
 For this project I present to you a functional quantum circuit emulator 
 library in C++. It has functionalities similar to its equivalent in 
 python, qiskit:
 - It allows for relatively easy creation of circuits
 - It allows for the drawing of those circuits
-- It allows for simulation of quantum system, using the 'circuit' class 
+- It allows for simulation of quantum systems, using the 'circuit' class 
 and the '.measure' method of the 'state' class
 
 All the code is written by me, using only standard libraries. I have also
